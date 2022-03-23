@@ -1,3 +1,4 @@
+# LCS
 def lcs_position(seq1, seq2):
     """
     Obtain the position information of longest common subsequence.
@@ -41,3 +42,18 @@ def normalized_dist(seq1, seq2):
             dp[i][j] = min(dp[i-1][j-1] + dist,
                            min(dp[i-1][j], dp[i][j-1]) + 1)
     return dp[-1][-1] / max(m, n)
+
+
+# Sequence Matcher
+from difflib import SequenceMatcher
+
+
+# Damerau–Levenshtein distance
+import editdistance
+
+
+def compare_stats(seq1, seq2):
+    dld = editdistance.eval(seq1, seq2)
+    avg_len = (len(seq1) + len(seq2)) / 2.0
+    percent = 1 - (dld / avg_len)
+    return percent, dld
