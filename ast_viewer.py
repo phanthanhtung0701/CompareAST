@@ -22,8 +22,9 @@ def trimClangNodeName(nodeName):
 
 def printASTNode(node, level):
     for i in range(0, level-1):
-        print('  ', end="")
-    print(f'+--{trimClangNodeName(node.kind)}  {node.spelling}')
+        print('|  ', end="")
+
+    print(f'|--{trimClangNodeName(node.kind)}  {node.spelling}')
 
 
 def traverseAST(node, level):
