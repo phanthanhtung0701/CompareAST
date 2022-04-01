@@ -20,11 +20,23 @@ def trimClangNodeName(nodeName):
     return ret
 
 
+def parse_binary_op(cursor):
+    # assert cursor.kind == clang.cindex.CursorKind.BINARY_OPERATOR
+    children_list = [i for i in cursor.get_children()]
+    assert len(children_list) == 2
+    left_offset = len([i for i in children_list[0].get_tokens()])
+    op = [i for i in cursor.get_tokens()][left_offset].spelling
+    return op
+
+
 def printASTNode(node, level):
     for i in range(0, level-1):
-        print('|  ', end="")
-
-    print(f'|--{trimClangNodeName(node.kind)}  {node.spelling}')
+        print('  ', end="")
+    if node.kind == clang.cindex.CursorKind.BINARY_OPERATOR or node.kind == clang.cindex.CursorKind.COMPOUND_ASSIGNMENT_OPERATOR:
+        binaryOp = parse_binary_op(node)
+        print(f'+--{node.kind.name}  {binaryOp}  {node.type.kind}')
+    else:
+        print(f'+--{node.kind.name}  {node.spelling}  {node.type.kind}')
 
 
 def traverseAST(node, level):
