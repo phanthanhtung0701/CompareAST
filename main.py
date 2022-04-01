@@ -26,4 +26,4 @@ print(1 - b)
 
 # print(cosine_similarity(results1, results2))
 print(SequenceMatcher(None, results1, results2).ratio())
-print(get_pair_stats(results1, results2))
+print(compare_stats(results1, results2))
