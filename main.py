@@ -16,14 +16,16 @@ results2 = tokenize(file_path2)
 # print(results2)
 
 
-# position information of longest common subsequence
-a = lcs_position(results1, results2)
-# print(a)
-
 # normalized distance between 2 sequences
-b = normalized_dist(results1, results2)
-print(1 - b)
+print('---LCS\t\t\t\t\t: ', end='')
+print(lcs_based_coeff(results1, results2))
 
-# print(cosine_similarity(results1, results2))
+
+print('---Sequence Matcher\t\t: ', end='')
 print(SequenceMatcher(None, results1, results2).ratio())
-print(compare_stats(results1, results2))
+
+print('---Damerau–Levenshtein\t: ', end='')
+print(compare_stats(results1, results2)[0])
+
+print('---TF_IDF\t\t\t\t: ', end='')
+print(tf_idf_similarity(results1, results2)[0][1])
