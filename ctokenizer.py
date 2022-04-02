@@ -113,16 +113,16 @@ def tokenize(path):
                     left_offset = len([i for i in children_list[0].get_tokens()])
                     op = [i for i in c.get_tokens()][left_offset].spelling
                     tokens.append(op)
-                    subtokens = c.get_tokens()
-                    for st in subtokens:
-                        if st.kind.name == "PUNCTUATION" and "=" in st.spelling:
-                            tmp = st.spelling.split("=")[0]
-                            if tmp == "<<":
-                                tokens.append("lshift")
-                            elif tmp == ">>":
-                                tokens.append("rshift")
-                            else:
-                                tokens.append(tmp)
+                    # subtokens = c.get_tokens()
+                    # for st in subtokens:
+                    #     if st.kind.name == "PUNCTUATION" and "=" in st.spelling:
+                    #         tmp = st.spelling.split("=")[0]
+                    #         if tmp == "<<":
+                    #             tokens.append("lshift")
+                    #         elif tmp == ">>":
+                    #             tokens.append("rshift")
+                    #         else:
+                    #             tokens.append(tmp)
 
                 # Conditional operators:
                 elif ckind == ck.CONDITIONAL_OPERATOR:
