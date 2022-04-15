@@ -23,7 +23,7 @@ struct graphEdge {
 class DiaGraph{
     // insert new nodes into adjacency list from given graph
     int N;  // number of nodes in the graph
-    adjNode* getAdjListNode(int value, adjNode* head, int weight,)   {
+    adjNode* getAdjListNode(int value, adjNode* head, int weight)   {
         adjNode* newNode = new adjNode;
         newNode->cost = weight;
         newNode->next = head;   // point new node to current head
@@ -53,7 +53,7 @@ class DiaGraph{
             int end_ver = edges[i].end_ver;
             int weight = edges[i].weight;
             // insert in the beginning
-            adjNode* newNode = getAdjListNode(end_ver, weight, head[start_ver]);
+            adjNode* newNode = getAdjListNode(end_ver, head[start_ver], weight);
             head[start_ver] = newNode;
         }
     }
