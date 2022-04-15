@@ -175,5 +175,3 @@ def tokenize(path):
     tokens = [token.lower() for token in tokens]
 
     return tokens
-
-

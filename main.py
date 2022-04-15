@@ -1,31 +1,37 @@
-from ctokenizer import tokenize
-# from sklearn.metrics.pairwise import cosine_similarity
+from reduceAST import reduceAST
 from similarity import *
+import tqdm
+import argparse
+import os
+import numpy as np
+import pandas as pd
 
 
-file_path1 = 'test_data/00-original.cpp'
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-i', '--input_data', type=str, default='test_data', help='path to directory')
+    parser.add_argument('-c', '--compare', type=str, default='AST_CC', help='algorithm used in comparison ast')
 
-# traverse AST
-results1 = tokenize(file_path1)
-# print(results1)
+    args = parser.parse_args()
+    print('Load file:')
+    ast_list = []
+    files = sorted(os.listdir(args.input_data))
+    files = [f for f in files if f.endswith(".cpp")]
+    for file_name in tqdm.tqdm(files[:16]):
+        file_path = os.path.join(args.input_data, file_name)
+        ast_list.append(reduceAST(file_path))
 
-file_path2 = 'test_data/02-order-changed.cpp'
+    print('Plagiarism detect:')
+    checker = Similarity()
+    n = len(ast_list)
+    res = np.zeros([n, n])
+    for i in range(n):
+        for j in range(i, n):
+            sim = checker.compare(ast_list[i], ast_list[j])
+            res[i][j] = sim
+            res[j][i] = sim
 
-# traverse AST
-results2 = tokenize(file_path2)
-# print(results2)
+    # res.tofile('foo.csv', sep=',', format='%10.5f')
+    pd.DataFrame(res).to_csv("foo.csv")
+    print(res)
 
-
-# normalized distance between 2 sequences
-print('---LCS\t\t\t\t\t: ', end='')
-print(lcs_based_coeff(results1, results2))
-
-
-print('---Sequence Matcher\t\t: ', end='')
-print(SequenceMatcher(None, results1, results2).ratio())
-
-print('---Damerau–Levenshtein\t: ', end='')
-print(compare_stats(results1, results2)[0])
-
-print('---TF_IDF\t\t\t\t: ', end='')
-print(tf_idf_similarity(results1, results2)[0][1])

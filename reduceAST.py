@@ -1,21 +1,18 @@
-from zss import simple_distance, distance, Node
+from zss import Node
 from clangData import *
 import clang.cindex as ci
 from clang.cindex import TypeKind as tk
 from clang.cindex import CursorKind as ck
 import hashlib
-from similarity import *
-
-path_1 = 'test_data/00-original.cpp'
-path_2 = 'test_data/02-order-changed.cpp'
 
 
 class CustomNode(Node):
-    def __init__(self, label, children=None, parent=None):
+    def __init__(self, label, children=None, spelling=None, parent=None):
         super().__init__(label, children)
         self.hashcode = int(hashlib.md5(label.encode()).hexdigest(), 16)
         self.hashnode = self.hashcode
         self.parent = parent
+        self.spelling = spelling
 
     @staticmethod
     def get_parent(node):
@@ -66,15 +63,15 @@ def traverse_reduce(cursor_node, path):
             # Constructors:
             elif ckind == ck.CONSTRUCTOR:
                 if cursor_node.is_converting_constructor():
-                    tmp = "conv_con"
+                    tmp = "conv_constructor"
                 elif cursor_node.is_copy_constructor():
-                    tmp = "copy_con"
+                    tmp = "copy_constructor"
                 elif cursor_node.is_default_constructor():
-                    tmp = "def_con"
+                    tmp = "def_constructor"
                 elif cursor_node.is_move_constructor():
-                    tmp = "move_con"
+                    tmp = "move_constructor"
                 else:
-                    tmp = "con"
+                    tmp = "constructor"
                 idf = tmp
 
             # Variable declarations:
@@ -230,87 +227,6 @@ def traverseAST(node):
     return sequence
 
 
-def hashListClassify(node, size):
-    # hashList = list()
-    # for i in range(size+1):
-    #
-    hashList = [[] for _ in range(size + 1)]
-
-    def traverseHash(sub_node):
-        if sub_node is not None:
-            n_node = default_tree_size(sub_node, CustomNode.get_children)
-            if n_node > 0:
-                hashList[n_node].append(sub_node)
-            for childNode in CustomNode.get_children(sub_node):
-                traverseHash(childNode)
-
-    traverseHash(node)
-    return hashList
-
-
-def compare(hashList_1, hashList_2):
-    n = min(len(hashList_1), len(hashList_2))
-    pair = []
-    ls = []
-    for n_sub_node in range(1, n):
-        L1 = hashList_1[n_sub_node]
-        L2 = hashList_2[n_sub_node]
-        L1 = sorted(L1, key=lambda x: x.hashnode)
-        L2 = sorted(L2, key=lambda x: x.hashnode)
-        i = 0
-        j = 0
-        while i < len(L1) and j < len(L2):
-            P1 = CustomNode.get_parent(L1[i])
-            P2 = CustomNode.get_parent(L2[j])
-            if P1 and P2 and P1 in ls:
-                i += 1
-                continue
-            elif P1 and P2 and P2 in ls:
-                j += 1
-                continue
-            if L1[i].hashnode > L2[j].hashnode:
-                j += 1
-            elif L1[i].hashnode < L2[j].hashnode:
-                i += 1
-            else:
-                pair.append([L1[i], L2[j]])
-                ls.append(L1[i])
-                ls.append(L2[j])
-                i += 1
-                j += 1
-
-    return pair
-
-
-def compare_from_root(hashList_1, hashList_2):
-    n = min(len(hashList_1), len(hashList_2))
-    pair = []
-    for n_sub_node in range(n-1, 0, -1):
-        L1 = hashList_1[n_sub_node]
-        L2 = hashList_2[n_sub_node]
-        L1 = sorted(L1, key=lambda x: x.hashnode)
-        L2 = sorted(L2, key=lambda x: x.hashnode)
-        i = 0
-        j = 0
-        while i < len(L1) and j < len(L2):
-            P1 = CustomNode.get_parent(L1[i])
-            P2 = CustomNode.get_parent(L2[j])
-            if P1 and P2 and P1.hashnode == P2.hashnode:
-                i += 1
-                j += 1
-                continue
-            if L1[i].hashnode > L2[j].hashnode:
-                j += 1
-            elif L1[i].hashnode < L2[j].hashnode:
-                i += 1
-            else:
-                pair.append([L1[i], L2[j]])
-                i += 1
-                j += 1
-
-    return pair
-
-
 def default_tree_size(tree, get_children):
     size = 1
     children = get_children(tree)
@@ -319,29 +235,13 @@ def default_tree_size(tree, get_children):
     return size
 
 
-def compute_normalized_distance_3(edit_distance, alpha, size_A, size_B):
-    return (2 * edit_distance) / (alpha * (size_A + size_B) + edit_distance)
-
-
-def compute_normalized_distance_2(edit_distance, alpha, size_A, size_B):
-    return (alpha * (size_A + size_B) - edit_distance) / 2
-
-
-def compute_normalized_distance_0(edit_distance, alpha, size_A, size_B):
-    return 2 * edit_distance / (size_A + size_B)
-
-
-def compute_normalized_distance_1(edit_distance, alpha, size_A, size_B):
-    return edit_distance / max(size_A, size_B)
-
-
 def printASTNode(node, level):
     for i in range(0, level - 1):
         print('  ', end="")
     parent = None
     if CustomNode.get_parent(node):
         parent = CustomNode.get_label(CustomNode.get_parent(node))
-    print(f'+-- {CustomNode.get_label(node)}    {parent}')
+    print(f'+-- {CustomNode.get_label(node)}')
 
 
 def visualizeAST(node, level):
@@ -354,59 +254,23 @@ def visualizeAST(node, level):
         level = level - 1
 
 
-def _str_dist(i, j):
-    return 0 if i == j else 1
-    # return 0
-
-
 if __name__ == '__main__':
+    path_1 = 'test_data/00-original.cpp'
+    path_2 = 'test_data/05-heavily-plagiarized.cpp'
     reduce_ast1 = reduceAST(path_1)
     reduce_ast2 = reduceAST(path_2)
     size_1 = default_tree_size(reduce_ast1, CustomNode.get_children)
     size_2 = default_tree_size(reduce_ast2, CustomNode.get_children)
+    print('-------AST--------')
     print(size_1)
-    print(size_2)
-    print(visualizeAST(reduce_ast1, 0))
+    visualizeAST(reduce_ast1, 0)
     print('-' * 20)
-    print(visualizeAST(reduce_ast2, 0))
-    # # dist = simple_distance(reduce_ast1, reduce_ast2)
-    # dist = distance(reduce_ast1, reduce_ast2, CustomNode.get_children, insert_cost=lambda node: 1,
-    #                 remove_cost=lambda node: 1, update_cost=lambda a, b: _str_dist(a, b))
-    # print(dist)
-    #
-    # # sim = compute_normalized_distance_2(dist, 1, size_1, size_2)
-    # print(1 - compute_normalized_distance_0(dist, 1, size_1, size_2))
-    # print(1 - compute_normalized_distance_1(dist, 1, size_1, size_2))
-    # print(1 - compute_normalized_distance_3(dist, 1, size_1, size_2))
-
-    hashList1 = hashListClassify(reduce_ast1, size_1)
-    hashList2 = hashListClassify(reduce_ast2, size_2)
-
-    res = compare(hashList1, hashList2)
-    total = 0
-    for r in res:
-        print(r)
-        total += default_tree_size(r[0], CustomNode.get_children)
-
-    print(total)
-    print(size_1)
     print(size_2)
-    print(2*total/(size_1+size_2))
-    results1 = traverseAST(reduce_ast1)
-    results2 = traverseAST(reduce_ast2)
-    #
-    print(results1)
-    print(results2)
-    #
-    # # normalized distance between 2 sequences
-    # print('---LCS\t\t\t\t\t: ', end='')
-    # print(lcs_based_coeff(results1, results2))
-    #
-    # print('---Ratcliff/Obershelp Sequence Matcher: ', end='')
-    # print(SequenceMatcher(None, results1, results2).ratio())
-    #
-    # print('---Damerau–Levenshtein\t: ', end='')
-    # print(compare_stats(results1, results2)[0])
-    #
-    # print('---TF_IDF\t\t\t\t: ', end='')
-    # print(tf_idf_similarity(results1, results2)[0][1])
+    visualizeAST(reduce_ast2, 0)
+
+    print('-------Sequences--------')
+    sequence_1 = traverseAST(reduce_ast1)
+    sequence_2 = traverseAST(reduce_ast2)
+
+    print(sequence_1)
+    print(sequence_2)
