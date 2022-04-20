@@ -11,7 +11,7 @@ function_calls = []  # List of AST node objects that are function calls
 function_declarations = []  # List of AST node objects that are fucntion declarations
 
 file_path = args.input_file
-tree_str = ""
+tree_line_arr = []
 
 # Traverse the AST tree
 def trimClangNodeName(nodeName):
@@ -29,9 +29,10 @@ def parse_binary_op(cursor):
 
 
 def printASTNode(node, level, is_last_child):
-    global tree_str
+    global tree_line_arr
+    tree_line_str = ""
     for i in range(0, level-1):
-        tree_str += '   '
+        tree_line_str += '   '
 
     if is_last_child:
         prefix_str = '└──'
@@ -40,11 +41,29 @@ def printASTNode(node, level, is_last_child):
 
     if node.kind == clang.cindex.CursorKind.BINARY_OPERATOR or node.kind == clang.cindex.CursorKind.COMPOUND_ASSIGNMENT_OPERATOR:
         binaryOp = parse_binary_op(node)
-        tree_str += (f'{prefix_str}{node.kind.name}  {node.displayname}  {binaryOp}  [line={node.location.line}, col={node.location.column}]')
+        tree_line_str += (f'{prefix_str}{node.kind.name} {level} {node.displayname}  {binaryOp}  [line={node.location.line}, col={node.location.column}]')
     else:
-        tree_str += (f'{prefix_str}{node.kind.name}  {node.displayname}  {node.spelling}  [line={node.location.line}, col={node.location.column}]')
+        tree_line_str += (f'{prefix_str}{node.kind.name} {level} {node.displayname}  {node.spelling}  [line={node.location.line}, col={node.location.column}]')
 
-    tree_str +="\n"
+    tree_line_arr.append(tree_line_str)
+
+    # Xu ly ky tu
+    idx = 0;
+    tree_line_qty_of_char = len(tree_line_arr)
+    for tmp_line in reversed(tree_line_arr):
+        if idx == 0:
+            idx += 1
+            continue
+
+        tmp_line_str = list(tmp_line)
+        tmp_line_char_pos = 3 * (level - 1)
+        tmp_line_char = tmp_line_str[tmp_line_char_pos];
+        if(tmp_line_char != " " or tmp_line_char == "├" or tmp_line_char == "└"):
+             break
+
+        tmp_line_str[tmp_line_char_pos] = "│"
+        tree_line_arr[tree_line_qty_of_char - 1 - idx] = "".join(tmp_line_str)
+        idx += 1
 
 def traverseAST(node, level, is_last_child):
     list_parent_level = []
@@ -73,4 +92,4 @@ root = tu.cursor  # Get the root of the AST
 traverseAST(root, 0, False)
 
 # print result
-print(tree_str)
+print("\n".join(tree_line_arr))
