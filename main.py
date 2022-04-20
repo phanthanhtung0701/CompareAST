@@ -9,7 +9,7 @@ import pandas as pd
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--input_data', type=str, default='test_data', help='path to directory')
+    parser.add_argument('-i', '--input_data', type=str, default='test_data_2', help='path to directory')
     parser.add_argument('-c', '--compare', type=str, default='AST_CC', help='algorithm used in comparison ast')
 
     args = parser.parse_args()
@@ -22,7 +22,7 @@ if __name__ == '__main__':
         ast_list.append(reduceAST(file_path))
 
     print('Plagiarism detect:')
-    checker = Similarity()
+    checker = Similarity(args.compare)
     n = len(ast_list)
     res = np.zeros([n, n])
     for i in range(n):
