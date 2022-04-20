@@ -7,12 +7,14 @@ import hashlib
 
 
 class CustomNode(Node):
-    def __init__(self, label, children=None, spelling=None, parent=None):
+    def __init__(self, label, children=None, spelling=None, parent=None, line=None, column=None):
         super().__init__(label, children)
         self.hashcode = int(hashlib.md5(label.encode()).hexdigest(), 16)
         self.hashnode = self.hashcode
         self.parent = parent
         self.spelling = spelling
+        self.line = line
+        self.column = column
 
     @staticmethod
     def get_parent(node):
@@ -193,7 +195,9 @@ def traverse_reduce(cursor_node, path):
                 for c_n in child_node:
                     cursors.append(c_n)
         if idf:
-            return [CustomNode(idf.lower(), cursors)]
+            return [CustomNode(idf.lower(), cursors,
+                               line=cursor_node.location.line,
+                               column=cursor_node.location.column)]
         else:
             return cursors
 
@@ -241,7 +245,7 @@ def printASTNode(node, level):
     parent = None
     if CustomNode.get_parent(node):
         parent = CustomNode.get_label(CustomNode.get_parent(node))
-    print(f'+-- {CustomNode.get_label(node)}')
+    print(f'+-- {CustomNode.get_label(node)}    <line={node.line} col={node.column}>')
 
 
 def visualizeAST(node, level):
