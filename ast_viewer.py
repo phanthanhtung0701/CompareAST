@@ -41,9 +41,9 @@ def printASTNode(node, level, is_last_child):
 
     if node.kind == clang.cindex.CursorKind.BINARY_OPERATOR or node.kind == clang.cindex.CursorKind.COMPOUND_ASSIGNMENT_OPERATOR:
         binaryOp = parse_binary_op(node)
-        tree_line_str += (f'{prefix_str}{node.kind.name} {level} {node.displayname}  {binaryOp}  [line={node.location.line}, col={node.location.column}]')
+        tree_line_str += (f'{prefix_str}{node.kind.name} {node.displayname}  {binaryOp}  [line={node.location.line}, col={node.location.column}]')
     else:
-        tree_line_str += (f'{prefix_str}{node.kind.name} {level} {node.displayname}  {node.spelling}  [line={node.location.line}, col={node.location.column}]')
+        tree_line_str += (f'{prefix_str}{node.kind.name} {node.displayname}  {node.spelling}  [line={node.location.line}, col={node.location.column}]')
 
     tree_line_arr.append(tree_line_str)
 
