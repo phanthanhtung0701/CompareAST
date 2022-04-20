@@ -34,9 +34,9 @@ def printASTNode(node, level):
         print('  ', end="")
     if node.kind == clang.cindex.CursorKind.BINARY_OPERATOR or node.kind == clang.cindex.CursorKind.COMPOUND_ASSIGNMENT_OPERATOR:
         binaryOp = parse_binary_op(node)
-        print(f'+--{node.kind.name}  {binaryOp}  {node.type.kind}')
+        print(f'+--{node.kind.name}  {binaryOp}  [line={node.location.line}, col={node.location.column}]')
     else:
-        print(f'+--{node.kind.name}  {node.spelling}  {node.type.kind}')
+        print(f'+--{node.kind.name}  {node.spelling}  [line={node.location.line}, col={node.location.column}]')
 
 
 def traverseAST(node, level):
