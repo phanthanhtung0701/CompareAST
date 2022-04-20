@@ -19,8 +19,8 @@ def compute_normalized_distance_1(edit_distance, alpha, size_A, size_B):
 
 
 def _str_dist(i, j):
-    return 0 if i == j else 1
-    # return 0
+    # return 0 if i == j else 1
+    return 0
 
 
 def ted(ast1, ast2):
