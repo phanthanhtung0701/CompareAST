@@ -105,8 +105,14 @@ def ast_cc_compare(ast1, ast2):
 
     res = compare_from_parent(hashList1, hashList2, threshold=2)
     total = 0
+    if not res:
+        print('There aren\'t common')
+        return 0
+    print('---------AST1--------- | ---------AST2---------')
     for r in res:
-        print(f'{r[0].label} <{r[0].line},{r[0].column}>')
+        print('(%3d, %3d), (%3d, %3d) | (%3d, %3d), (%3d, %3d)'
+              % (r[0].start[0], r[0].start[1], r[0].end[0], r[0].end[1],
+                 r[1].start[0], r[1].start[1], r[1].end[0], r[1].end[1]))
         total += default_tree_size(r[0], CustomNode.get_children)
 
     return 2 * total / (size_1 + size_2)

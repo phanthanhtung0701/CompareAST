@@ -1,6 +1,6 @@
 from compare.lcs import lcs_based_coeff
 from compare.ted import ted_similarity
-from compare.ast_cc import ast_cc_similarity
+from compare.ast_cc import ast_cc_similarity, ast_cc_compare
 from compare.tf_idf import tf_idf_similarity
 from reduceAST import traverseAST
 
@@ -21,7 +21,7 @@ from reduceAST import traverseAST
 
 class Similarity:
     def __init__(self, algorithm_compare=None):
-        self.function_similarity = ast_cc_similarity
+        self.function_similarity = ast_cc_compare
         self.algorithm_compare = algorithm_compare
         if algorithm_compare == 'LCS':
             self.function_similarity = lcs_based_coeff
