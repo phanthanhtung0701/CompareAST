@@ -108,11 +108,14 @@ def ast_cc_compare(ast1, ast2):
     if not res:
         print('There aren\'t common')
         return 0
-    print('---------AST1--------- | ---------AST2---------')
+    print(f'There are {len(res)} reports')
+    print('---------AST1--------- | ---------AST2--------- | ---No. Node---')
     for r in res:
-        print('(%3d, %3d), (%3d, %3d) | (%3d, %3d), (%3d, %3d)'
+        n_node = default_tree_size(r[0], CustomNode.get_children)
+        print('(%3d, %3d), (%3d, %3d) | (%3d, %3d), (%3d, %3d) |   %5d'
               % (r[0].start[0], r[0].start[1], r[0].end[0], r[0].end[1],
-                 r[1].start[0], r[1].start[1], r[1].end[0], r[1].end[1]))
-        total += default_tree_size(r[0], CustomNode.get_children)
+                 r[1].start[0], r[1].start[1], r[1].end[0], r[1].end[1],
+                 n_node))
+        total += n_node
 
     return 2 * total / (size_1 + size_2)

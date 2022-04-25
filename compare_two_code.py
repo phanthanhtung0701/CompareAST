@@ -22,4 +22,4 @@ if __name__ == '__main__':
 
     checker = Similarity(args.compare)
     sim = checker.compare(ast1, ast2)
-    print(sim)
+    print(f'Similarity: {sim}')
