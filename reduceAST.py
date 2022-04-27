@@ -7,12 +7,15 @@ import hashlib
 
 
 class CustomNode(Node):
-    def __init__(self, label, children=None, spelling=None, parent=None):
+    def __init__(self, label, children=None, spelling=None, parent=None, line=None, column=None):
         super().__init__(label, children)
         self.hashcode = int(hashlib.md5(label.encode()).hexdigest(), 16)
         self.hashnode = self.hashcode
         self.parent = parent
         self.spelling = spelling
+        self.start = (line, column)
+        self.end = None
+        self.get_end_location()
 
     @staticmethod
     def get_parent(node):
@@ -38,6 +41,24 @@ class CustomNode(Node):
         :returns: ``self.hashcode``.
         """
         return self.hashcode
+
+    def get_end_location(self):
+        def traverse_set_location(node):
+            if node is not None:
+                positions = []
+                # Recurse for children of this node
+                children = CustomNode.get_children(node)
+                if children:
+                    for childNode in children:
+                        positions.append(traverse_set_location(childNode))
+
+                    positions = sorted(positions, reverse=True)
+                    node.end = positions[0]
+                else:
+                    node.end = node.start
+                return node.end
+
+        traverse_set_location(self)
 
 
 def traverse_reduce(cursor_node, path):
@@ -193,7 +214,9 @@ def traverse_reduce(cursor_node, path):
                 for c_n in child_node:
                     cursors.append(c_n)
         if idf:
-            return [CustomNode(idf.lower(), cursors)]
+            return [CustomNode(idf.lower(), cursors,
+                               line=cursor_node.location.line,
+                               column=cursor_node.location.column)]
         else:
             return cursors
 
@@ -241,7 +264,7 @@ def printASTNode(node, level):
     parent = None
     if CustomNode.get_parent(node):
         parent = CustomNode.get_label(CustomNode.get_parent(node))
-    print(f'+-- {CustomNode.get_label(node)}')
+    print(f'+-- {CustomNode.get_label(node)}    <start={node.start} end={node.end}>')
 
 
 def visualizeAST(node, level):
@@ -255,8 +278,8 @@ def visualizeAST(node, level):
 
 
 if __name__ == '__main__':
-    path_1 = 'test_data/00-original.cpp'
-    path_2 = 'test_data/05-heavily-plagiarized.cpp'
+    path_1 = 'test_data/test_1.cpp'
+    path_2 = 'test_data/test_2.cpp'
     reduce_ast1 = reduceAST(path_1)
     reduce_ast2 = reduceAST(path_2)
     size_1 = default_tree_size(reduce_ast1, CustomNode.get_children)

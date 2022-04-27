@@ -16,4 +16,5 @@ int main()
             d = d - c;
         }
     }
+    return c+d;
 }

@@ -17,7 +17,7 @@ if __name__ == '__main__':
     ast_list = []
     files = sorted(os.listdir(args.input_data))
     files = [f for f in files if f.endswith(".cpp")]
-    for file_name in tqdm.tqdm(files[:16]):
+    for file_name in tqdm.tqdm(files):
         file_path = os.path.join(args.input_data, file_name)
         ast_list.append(reduceAST(file_path))
 
@@ -34,4 +34,3 @@ if __name__ == '__main__':
     # res.tofile('foo.csv', sep=',', format='%10.5f')
     pd.DataFrame(res).to_csv("foo.csv")
     print(res)
-

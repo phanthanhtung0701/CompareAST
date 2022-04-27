@@ -20,7 +20,7 @@ def compare_from_parent(hashList_1, hashList_2, threshold=1):
     n = min(len(hashList_1), len(hashList_2))
     pair = []
     ls = []
-    for n_sub_node in range(n-1, threshold-1, -1):
+    for n_sub_node in range(n - 1, threshold - 1, -1):
         L1 = hashList_1[n_sub_node]
         L2 = hashList_2[n_sub_node]
         L1 = sorted(L1, key=lambda x: x.hashnode)
@@ -88,9 +88,34 @@ def ast_cc_similarity(ast1, ast2):
     hashList1 = hashListClassify(ast1, size_1)
     hashList2 = hashListClassify(ast2, size_2)
 
-    res = compare_from_parent(hashList1, hashList2, threshold=1)
+    res = compare(hashList1, hashList2, threshold=2)
     total = 0
     for r in res:
         total += default_tree_size(r[0], CustomNode.get_children)
 
-    return 2*total/(size_1+size_2)
+    return 2 * total / (size_1 + size_2)
+
+
+def ast_cc_compare(ast1, ast2):
+    size_1 = default_tree_size(ast1, CustomNode.get_children)
+    size_2 = default_tree_size(ast2, CustomNode.get_children)
+
+    hashList1 = hashListClassify(ast1, size_1)
+    hashList2 = hashListClassify(ast2, size_2)
+
+    res = compare_from_parent(hashList1, hashList2, threshold=2)
+    total = 0
+    if not res:
+        print('There aren\'t common')
+        return 0
+    print(f'There are {len(res)} reports')
+    print('---------AST1--------- | ---------AST2--------- | ---No. Node---')
+    for r in res:
+        n_node = default_tree_size(r[0], CustomNode.get_children)
+        print('(%3d, %3d), (%3d, %3d) | (%3d, %3d), (%3d, %3d) |   %5d'
+              % (r[0].start[0], r[0].start[1], r[0].end[0], r[0].end[1],
+                 r[1].start[0], r[1].start[1], r[1].end[0], r[1].end[1],
+                 n_node))
+        total += n_node
+
+    return 2 * total / (size_1 + size_2)
