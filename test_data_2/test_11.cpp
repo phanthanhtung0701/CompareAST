@@ -1,4 +1,4 @@
-void getDay(int day){
+int getDay(int day){
     switch (day) {
           case 6:
                 cout << "Today is Saturday";
@@ -9,6 +9,8 @@ void getDay(int day){
           default:
                 cout << "Looking forward to the Weekend";
     }
+
+    return 0;
 }
 
 void main(){
